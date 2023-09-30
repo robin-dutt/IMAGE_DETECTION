@@ -21,9 +21,10 @@ def classify_image(image_path):
         predicted_class = class_names[np.argmax(prediction)]
         probability = prediction[0][np.argmax(prediction)]  # Probability of the predicted class
 
-        return predicted_class, probability
+        return predicted_class, probability  # Return both predicted class and probability
     except Exception as e:
         return str(e)
+
 
 # Function to perform metadata analysis on an image using OpenCV
 def perform_metadata_analysis(image_path):
@@ -56,7 +57,7 @@ def main():
     if selected_option == "Home":
         st.write("Welcome to the Image Analysis App!")
 
-    elif selected_option == "Image Classification":
+    if selected_option == "Image Classification":
         st.header("Image Classification")
         st.write("Upload an image for classification:")
         uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png"])
@@ -70,13 +71,13 @@ def main():
                 with open(temp_image_path, "wb") as temp_image_file:
                     temp_image_file.write(uploaded_image.read())
 
-            # Perform classification on the uploaded image
-            classification_result = classify_image(temp_image_path)
+                # Perform classification on the uploaded image
+                predicted_class, probability = classify_image(temp_image_path)
 
-            st.write(f"Image classification result: {classification_result}")
-            st.write(f"Probability: {probability * 100:.2f}%")
-            # Remove the temporary image file
-            os.remove(temp_image_path)
+                st.write(f"Image classification result: {predicted_class}")
+                st.write(f"Probability: {probability * 100:.2f}%")
+                # Remove the temporary image file
+                os.remove(temp_image_path)
 
 
     elif selected_option == "Metadata Analysis":
