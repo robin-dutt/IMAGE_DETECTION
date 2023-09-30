@@ -1,6 +1,29 @@
 import streamlit as st
 import cv2
 import os
+import numpy as np
+from keras.models import load_model
+from keras.preprocessing.image import img_to_array, load_img
+
+# Load your trained model here
+model = load_model('fraud_image_model.h5')
+
+def classify_image(image_path):
+    try:
+        # Load and preprocess the image
+        img = load_img(image_path, target_size=(128, 128))
+        img_array = img_to_array(img) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+
+        # Perform classification using the loaded model
+        prediction = model.predict(img_array)
+        class_names = ['Fake Image', 'Real Image']
+        predicted_class = class_names[np.argmax(prediction)]
+        probability = prediction[0][np.argmax(prediction)]  # Probability of the predicted class
+
+        return predicted_class, probability
+    except Exception as e:
+        return str(e)
 
 # Function to perform metadata analysis on an image using OpenCV
 def perform_metadata_analysis(image_path):
@@ -51,7 +74,7 @@ def main():
             classification_result = classify_image(temp_image_path)
 
             st.write(f"Image classification result: {classification_result}")
-
+            st.write(f"Probability: {probability * 100:.2f}%")
             # Remove the temporary image file
             os.remove(temp_image_path)
 
