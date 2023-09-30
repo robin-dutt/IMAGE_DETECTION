@@ -34,18 +34,18 @@ def main():
         st.write("Welcome to the Image Analysis App!")
 
     elif selected_option == "Image Classification":
-    st.header("Image Classification")
-    st.write("Upload an image for classification:")
-    uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png"])
-    if uploaded_image is not None:
-        st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
+        st.header("Image Classification")
+        st.write("Upload an image for classification:")
+        uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png"])
+        if uploaded_image is not None:
+            st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
 
-        # Perform image classification
-        if st.button("Classify Image"):
-            # Save the uploaded image to a temporary file
-            temp_image_path = "temp_image.jpg"
-            with open(temp_image_path, "wb") as temp_image_file:
-                temp_image_file.write(uploaded_image.read())
+            # Perform image classification
+            if st.button("Classify Image"):
+                # Save the uploaded image to a temporary file
+                temp_image_path = "temp_image.jpg"
+                with open(temp_image_path, "wb") as temp_image_file:
+                    temp_image_file.write(uploaded_image.read())
 
             # Perform classification on the uploaded image
             classification_result = classify_image(temp_image_path)
