@@ -1,20 +1,98 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import streamlit as st
 from PIL import Image
 import os
+import exifread
+import pandas as pd
+from datetime import datetime
+import numpy as np
+from matplotlib import pyplot as plt
+from tqdm import tqdm
+from PIL import Image, ImageChops, ImageEnhance
+import glob
+import random
+import os
+import cv2
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.preprocessing import StandardScaler
+from keras.utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout
+from keras.optimizers import Adam
+from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import EarlyStopping
 
 # Function to perform metadata analysis on an image
 def perform_metadata_analysis(image_path):
-    # Your existing metadata analysis code here
+    # Extract metadata from the image
+    def extract_metadata(image_path):
+        with open(image_path, 'rb') as image_file:
+            tags = exifread.process_file(image_file)
+        return tags
+
+    # Extract Creation Date/Time, Software Used, and Date Modified
+    def extract_metadata_details(image_path):
+        metadata = extract_metadata(image_path)
+
+        creation_time = metadata.get('EXIF DateTimeOriginal', None)
+        software_used = metadata.get('Image Software', None)
+
+        # Extract Date Modified using os.path.getmtime and convert to a readable format
+        date_modified_timestamp = os.path.getmtime(image_path)
+        date_modified = datetime.fromtimestamp(date_modified_timestamp).strftime('%Y-%m-%d %H:%M:%S')
+
+        return {
+            'Creation Date/Time': str(creation_time),
+            'Software Used': str(software_used),
+            'Date Modified': date_modified,
+        }
+
+    metadata_details = extract_metadata_details(image_path)
+    return metadata_details
 
 # Function to determine whether an image is real or fake
 def classify_image(image_path):
-    # Your existing image classification code here
+    def convert_to_ela_image(image_path, quality=90):
+        # Save the image at the given quality
+        temp_file = 'temp.jpg'
+        im = Image.open(image_path).convert('RGB')
+        im.save(temp_file, 'JPEG', quality=quality)
+
+        # Open the saved image and the original image
+        saved = Image.open(temp_file)
+        original = Image.open(image_path)
+
+        # Find the absolute difference between the images
+        diff = ImageChops.difference(original, saved)
+
+        # Normalize the difference by multiplying with a scale factor and convert to grayscale
+        extrema = diff.getextrema()
+        max_diff = max([ex[1] for ex in extrema])
+        scale = 255.0 / max_diff
+        diff = ImageEnhance.Brightness(diff).enhance(scale)
+
+        # Remove the temporary file
+        os.remove(temp_file)
+
+        return diff
+
+    def prepare_image(image_path):
+        return np.array(convert_to_ela_image(image_path).resize((128, 128))).flatten() / 255.0
+
+    # Load the trained model
+    model = define_model()
+    model.load_weights('fraud_image_model.h5')
+
+    # Prepare the image for classification
+    image = prepare_image(image_path)
+    image = image.reshape(-1, 128, 128, 1)
+
+    # Use the trained model to predict
+    prediction = model.predict(image)
+    class_names = ['Fake Image', 'Real Image']
+    predicted_class = class_names[np.argmax(prediction)]
+
+    return predicted_class
 
 # Define the Streamlit app
 def main():
@@ -72,4 +150,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
