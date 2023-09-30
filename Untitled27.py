@@ -55,6 +55,7 @@ def main():
             # Remove the temporary image file
             os.remove(temp_image_path)
 
+
     elif selected_option == "Metadata Analysis":
         st.header("Metadata Analysis")
         image_path = st.file_uploader("Upload an image for metadata analysis", type=["jpg", "png"])
