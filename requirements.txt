@@ -1,7 +1,7 @@
-streamlit==0.90.0
-pillow==8.2.0
-matplotlib==3.4.2
-opencv-python-headless==4.5.2
-tensorflow==2.5.0
-scikit-learn==0.24.2
-exifread==2.3.0
+streamlit
+pillow
+matplotlib
+opencv-python-headless
+tensorflow
+scikit-learn
+cv
