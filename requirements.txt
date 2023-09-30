@@ -1,0 +1,6 @@
+streamlit
+pillow
+matplotlib
+opencv-python-headless
+tensorflow
+scikit-learn
