@@ -1,7 +1,8 @@
 streamlit
-pillow
-matplotlib
+Pillow
 opencv-python-headless
-tensorflow
+numpy
+matplotlib
+tqdm
 scikit-learn
-cv
+keras
